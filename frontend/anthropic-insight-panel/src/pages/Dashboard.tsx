@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Download, GitCompare } from "lucide-react";
 import { CompanyProfile, WorkflowStep } from "@/types/api";
 import { useCompanies } from "@/hooks/useCompanies";
+import { usePipeline } from "@/hooks/usePipeline";
 import { Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 // import { mockMicrosoftProfile, mockNvidiaProfile, mockAppleProfile } from "@/mocks/mockData";  // ← OLD: Removed for backend integration
 
 // OLD: Mock companies (replaced with backend API call)
@@ -155,8 +157,24 @@ const Dashboard = () => {
   // ✅ NEW: Fetch companies from backend API
   const { data: companies, isLoading, error } = useCompanies(['MSFT', 'NVDA', 'AAPL']);
 
+  // ✅ Pipeline management for "Start Pipeline" button
+  const {
+    startPipeline,
+    loading: pipelineLoading,
+    progress: pipelineProgress,
+    error: pipelineError,
+    companyStatuses
+  } = usePipeline();
+
   const [selectedCompany, setSelectedCompany] = useState<CompanyProfile | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+
+  // ✅ Handler for "Start Pipeline" button - Microsoft only, 3 jobs
+  const handleStartPipeline = async () => {
+    console.log('🚀 Starting pipeline for Microsoft only (3 jobs limit via backend)');
+    // Backend is configured to find 3 jobs in job_scraper.py
+    await startPipeline(['MSFT']); // Single company: Microsoft
+  };
   
   // Mock workflow steps for debug panel
   const [workflowSteps] = useState<WorkflowStep[]>([
@@ -270,9 +288,23 @@ const Dashboard = () => {
                 <Download className="h-4 w-4 mr-2" />
                 Export All
               </Button>
-              <Button size="sm" className="bg-gradient-warm">
-                <Play className="h-4 w-4 mr-2" />
-                Start Pipeline
+              <Button
+                size="sm"
+                className="bg-gradient-warm"
+                onClick={handleStartPipeline}
+                disabled={pipelineLoading}
+              >
+                {pipelineLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processing... {pipelineProgress}%
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Pipeline
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -281,6 +313,42 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8 pr-24">
+        {/* Pipeline Progress Bar */}
+        {pipelineLoading && (
+          <div className="mb-6 p-4 border border-blue-200 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                <span className="text-sm font-semibold text-blue-900">
+                  Processing Microsoft (MSFT) - Finding 3 jobs...
+                </span>
+              </div>
+              <span className="text-sm font-bold text-blue-600">{pipelineProgress}%</span>
+            </div>
+            <Progress value={pipelineProgress} className="h-2" />
+            {companyStatuses.length > 0 && (
+              <div className="mt-3 text-xs text-blue-700">
+                {companyStatuses.map(cs => (
+                  <div key={cs.ticker} className="flex items-center gap-2">
+                    <span className="font-semibold">{cs.ticker}:</span>
+                    <span>{cs.stage || cs.status}</span>
+                    {cs.message && <span className="text-blue-600">- {cs.message}</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Pipeline Error */}
+        {pipelineError && (
+          <div className="mb-6 p-4 border border-red-200 bg-red-50 rounded-lg">
+            <p className="text-sm text-red-900">
+              <strong>Pipeline Error:</strong> {pipelineError}
+            </p>
+          </div>
+        )}
+
         <div className="mb-6 flex items-center justify-between">
           <div>
             <Badge variant="outline" className="mb-2">
@@ -314,9 +382,22 @@ const Dashboard = () => {
             <p className="text-sm text-muted-foreground mb-4">
               Start the intelligence pipeline to analyze 10-K filings
             </p>
-            <Button className="bg-gradient-warm">
-              <Play className="h-4 w-4 mr-2" />
-              Start Pipeline
+            <Button
+              className="bg-gradient-warm"
+              onClick={handleStartPipeline}
+              disabled={pipelineLoading}
+            >
+              {pipelineLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4 mr-2" />
+                  Start Pipeline
+                </>
+              )}
             </Button>
           </div>
         )}

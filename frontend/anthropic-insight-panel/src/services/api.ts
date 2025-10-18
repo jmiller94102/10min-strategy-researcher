@@ -49,7 +49,7 @@ const getAPIMode = (): APIMode => {
 };
 
 // ⚠️ HARDCODED FOR BACKEND INTEGRATION (Vite .env not loading)
-const API_MODE: APIMode = 'BACKEND_MOCK';
+const API_MODE: APIMode = 'REAL';
 
 // Mock delays (milliseconds) for realistic simulation
 const MOCK_DELAYS = {

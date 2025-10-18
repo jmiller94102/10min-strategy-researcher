@@ -18,3 +18,4 @@ mypy>=1.14.0
 ruff>=0.9.0
 black>=25.1.0
 reportlab>=4.4.0
+galileo>=0.1.0

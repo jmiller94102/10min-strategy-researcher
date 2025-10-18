@@ -209,11 +209,11 @@ export const CompanyDetail = ({ company, open, onOpenChange }: CompanyDetailProp
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Competitive Angles</h3>
+                  <h3 className="text-lg font-semibold mb-3">Key Talking Points</h3>
                   <div className="space-y-2">
-                    {company.sdr_playbook.competitive_angles.map((angle, i) => (
+                    {company.sdr_playbook.talking_points.map((point, i) => (
                       <div key={i} className="p-3 bg-accent/5 border border-accent/20 rounded-lg">
-                        <p className="text-sm">→ {angle}</p>
+                        <p className="text-sm">→ {point}</p>
                       </div>
                     ))}
                   </div>

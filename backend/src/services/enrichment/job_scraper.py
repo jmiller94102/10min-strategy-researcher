@@ -1,8 +1,10 @@
 """Job scraping using Browser-Use Cloud API"""
 import asyncio
 from typing import List
+from datetime import datetime
 from browser_use import Agent, ChatBrowserUse
 from dotenv import load_dotenv
+from galileo import galileo_context
 
 from src.core.config import settings
 from src.core.logging_config import logger
@@ -26,9 +28,26 @@ class AIJobScraper:
 
             logger.info("AIJobScraper initialized with Browser-Use Cloud API")
             logger.info(f"API Key configured: {bool(settings.browser_use_api_key)}")
+            
+            # Initialize Galileo if API key is configured
+            self.galileo_enabled = bool(settings.galileo_api_key)
+            if self.galileo_enabled:
+                try:
+                    galileo_context.init(
+                        project=settings.galileo_project,
+                        log_stream=settings.galileo_log_stream
+                    )
+                    self.galileo_logger = galileo_context.get_logger_instance()
+                    logger.info("Galileo observability enabled for job scraping")
+                except Exception as e:
+                    logger.warning(f"Failed to initialize Galileo: {e}")
+                    self.galileo_enabled = False
+            else:
+                self.galileo_enabled = False
         except Exception as e:
             self.llm = None
             self.browser = None
+            self.galileo_enabled = False
             logger.warning(f"AIJobScraper: Failed to initialize Browser-Use Cloud: {e}")
 
     async def scrape_ai_jobs(self, company: dict) -> dict:
@@ -60,9 +79,19 @@ class AIJobScraper:
             }
 
         try:
-            # Create Browser-Use agent to find jobs
+            # Start Galileo session and trace if enabled
+            if self.galileo_enabled:
+                self.galileo_logger.start_session()
+                self.galileo_logger.start_trace(
+                    name=f"Scrape Jobs - {company_name}",
+                    input=f"Scraping career page for {company_name} ({ticker})"
+                )
             
-task = f"""
+            # Capture start time for duration tracking
+            start_time_ns = datetime.now().timestamp() * 1_000_000_000
+            
+            # Create Browser-Use agent to find jobs
+            task = f"""
 Go to {company_name}'s career page and find 3 job openings.
 
 Try these URLs in order:
@@ -93,12 +122,12 @@ EXTRACTION STRATEGY:
 Save the results in a structured format with all 5 fields for each job.
 """
 
-agent = Agent(
-    task=task,
-    llm=self.llm,
-    max_actions=25,  # Increased from 15 to allow for navigation patterns
-    use_vision=True
-)
+            agent = Agent(
+                task=task,
+                llm=self.llm,
+                max_actions=25,  # Increased from 15 to allow for navigation patterns
+                use_vision=True
+            )
 
 
 
@@ -136,6 +165,21 @@ agent = Agent(
             # Run the agent
             logger.info(f"Running Browser-Use agent for {ticker}")
             result = await agent.run()
+            
+            # Log to Galileo if enabled
+            if self.galileo_enabled:
+                duration_ns = (datetime.now().timestamp() * 1_000_000_000) - start_time_ns
+                # Browser-Use doesn't expose token counts, so we estimate
+                output_text = str(result)
+                self.galileo_logger.add_llm_span(
+                    input=[{"role": "user", "content": task}],
+                    output=output_text[:1000],  # Truncate for logging
+                    model="browser-use-anthropic",
+                    num_input_tokens=len(task) // 4,  # Rough estimate
+                    num_output_tokens=len(output_text) // 4,  # Rough estimate
+                    total_tokens=(len(task) + len(output_text)) // 4,
+                    duration_ns=int(duration_ns)
+                )
 
             # Parse agent output into structured format
             jobs_data = self._parse_agent_output(result, company_name, domain)
@@ -144,6 +188,14 @@ agent = Agent(
                 f"Scraped {len(jobs_data.get('jobs', []))} jobs for {company_name}, "
                 f"tech stack: {len(jobs_data.get('tech_stack', []))} items"
             )
+            
+            # Conclude Galileo trace if enabled
+            if self.galileo_enabled:
+                self.galileo_logger.conclude(
+                    output=f"Scraped {len(jobs_data.get('jobs', []))} jobs, "
+                           f"{len(jobs_data.get('tech_stack', []))} tech items"
+                )
+                self.galileo_logger.flush()
 
             return {
                 "company": company,
@@ -157,6 +209,15 @@ agent = Agent(
 
         except Exception as e:
             logger.error(f"Job scraping failed for {company_name}: {e}")
+            
+            # Log error to Galileo if enabled
+            if self.galileo_enabled:
+                try:
+                    self.galileo_logger.conclude(output=f"Error: {str(e)}")
+                    self.galileo_logger.flush()
+                except:
+                    pass
+            
             return {
                 "company": company,
                 "ai_jobs": [],

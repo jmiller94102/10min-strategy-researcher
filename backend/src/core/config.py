@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     # Browser-Use Cloud API
     browser_use_api_key: Optional[str] = None
 
+    # Galileo Observability
+    galileo_api_key: Optional[str] = None
+    galileo_project: str = "10K-Pipeline"
+    galileo_log_stream: str = "production"
+    galileo_console_url: str = "https://app.galileo.ai"
+
     # Daytona
     daytona_api_key: str
     daytona_workspace_prefix: str = "10k-pipeline"
