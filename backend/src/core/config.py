@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     azure_openai_chat_deployment: str = "gpt-4o"
     azure_openai_embedding_deployment: str = "text-embedding-3-small"
 
+    # Anthropic (for Browser-Use agent)
+    anthropic_api_key: str
+
     # Daytona
     daytona_api_key: str
     daytona_workspace_prefix: str = "10k-pipeline"
