@@ -6,14 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Download, GitCompare } from "lucide-react";
 import { CompanyProfile, WorkflowStep } from "@/types/api";
-import { mockMicrosoftProfile, mockNvidiaProfile, mockAppleProfile } from "@/mocks/mockData";
+import { useCompanies } from "@/hooks/useCompanies";
+import { Loader2 } from "lucide-react";
+// import { mockMicrosoftProfile, mockNvidiaProfile, mockAppleProfile } from "@/mocks/mockData";  // ← OLD: Removed for backend integration
 
-// Mock companies with workflow status
-const mockCompanies: CompanyProfile[] = [
-  mockMicrosoftProfile,
-  mockNvidiaProfile,
-  mockAppleProfile,
-];
+// OLD: Mock companies (replaced with backend API call)
+// const mockCompanies: CompanyProfile[] = [
+//   mockMicrosoftProfile,
+//   mockNvidiaProfile,
+//   mockAppleProfile,
+// ];
 
 // OLD inline mock data (kept for reference but not used)
 const oldMockCompanies: CompanyProfile[] = [
@@ -150,7 +152,9 @@ const oldMockCompanies: CompanyProfile[] = [
 ];
 
 const Dashboard = () => {
-  const [companies] = useState<CompanyProfile[]>(mockCompanies);
+  // ✅ NEW: Fetch companies from backend API
+  const { data: companies, isLoading, error } = useCompanies(['MSFT', 'NVDA', 'AAPL']);
+
   const [selectedCompany, setSelectedCompany] = useState<CompanyProfile | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   
@@ -199,6 +203,53 @@ const Dashboard = () => {
       details: "Waiting for enrichment data"
     }
   ]);
+
+  // ✅ Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-lg font-semibold mb-2">Loading companies from backend...</p>
+          <p className="text-sm text-muted-foreground">Fetching data from http://localhost:8010/mock</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+            <span className="text-3xl">⚠️</span>
+          </div>
+          <h2 className="text-xl font-bold mb-2 text-red-600">Failed to Load Companies</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            {error.message || 'Could not connect to backend API'}
+          </p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Backend URL: http://localhost:8010/mock
+          </p>
+          <Button onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ No data state
+  if (!companies || companies.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground">No companies returned from backend</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

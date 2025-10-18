@@ -61,32 +61,77 @@ class AIJobScraper:
 
         try:
             # Create Browser-Use agent to find jobs
-            task = f"""
-            Go to {company_name}'s career page and find job openings.
+            
+task = f"""
+Go to {company_name}'s career page and find 3 job openings.
 
-            Try these URLs:
-            - https://{domain}/careers
-            - https://careers.{domain}
+Try these URLs in order:
+- https://{domain}/careers
+- https://careers.{domain}
+- https://jobs.{domain}
 
-            Find 3 job postings.
+IMPORTANT - Handling Panel-Based Job Boards:
+Many modern job boards use a two-panel layout (list on left, details on right).
+- First, look if clicking a job in the list shows details in a side panel WITHOUT navigating away
+- If so, extract information from the panel view - you may NOT need to click "See details" or open new pages
+- The job URL is often visible in the detail panel or can be found by inspecting the job listing
 
-            For each job you find, extract:
-            - Job title
-            - Location (city, state/country, remote/hybrid/onsite)
-            - Direct URL to the job posting
-            - Any technologies or skills mentioned (Python, Java, AWS, React, etc.)
-            - Job category (Engineering, Sales, Marketing, etc.)
+For each of the 3 jobs, extract:
+1. Job title
+2. Location (include: city, state/country, and work site type like "3 days/week in-office", "remote", "hybrid")
+3. Direct URL to the job posting (look for the full URL, often in the format: https://jobs.{domain}/job/[ID]/[title])
+4. Technologies/Skills mentioned in the description (e.g., Python, Java, AWS, React, Kubernetes, SQL)
+5. Job category/Profession (e.g., Software Engineering, Hardware Engineering, Data Science)
 
-            Return the 3 job titles with their details.
-            """
+EXTRACTION STRATEGY:
+1. Search for relevant jobs (try "Software Engineer" or similar roles)
+2. Before clicking into details, check if the list view shows enough information
+3. If using a panel interface, click each job and extract from the panel
+4. Only navigate to a separate job page if the panel doesn't show all needed information
+5. Record the direct URL for each job (crucial!)
 
-            # Browser-Use Cloud handles browser automatically - no browser param needed
-            agent = Agent(
-                task=task,
-                llm=self.llm,
-                max_actions=15,  # Limit actions for faster execution (3 jobs),
-                use_vision=True
-            )
+Save the results in a structured format with all 5 fields for each job.
+"""
+
+agent = Agent(
+    task=task,
+    llm=self.llm,
+    max_actions=25,  # Increased from 15 to allow for navigation patterns
+    use_vision=True
+)
+
+
+
+
+
+
+
+            # task = f"""
+            # Go to {company_name}'s career page and find job openings.
+
+            # Try these URLs:
+            # - https://{domain}/careers
+            # - https://careers.{domain}
+
+            # Find 3 job postings.
+
+            # For each job you find, extract:
+            # - Job title
+            # - Location (city, state/country, remote/hybrid/onsite)
+            # - Direct URL to the job posting
+            # - Any technologies or skills mentioned (Python, Java, AWS, React, etc.)
+            # - Job category (Engineering, Sales, Marketing, etc.)
+
+            # Return the 3 job titles with their details.
+            # """
+
+            # # Browser-Use Cloud handles browser automatically - no browser param needed
+            # agent = Agent(
+            #     task=task,
+            #     llm=self.llm,
+            #     max_actions=15,  # Limit actions for faster execution (3 jobs),
+            #     use_vision=True
+            # )
 
             # Run the agent
             logger.info(f"Running Browser-Use agent for {ticker}")

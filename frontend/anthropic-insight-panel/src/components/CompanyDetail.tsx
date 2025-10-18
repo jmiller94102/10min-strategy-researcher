@@ -16,7 +16,8 @@ interface CompanyDetailProps {
 export const CompanyDetail = ({ company, open, onOpenChange }: CompanyDetailProps) => {
   if (!company) return null;
 
-  const totalInvestment = company.investments.reduce((sum, inv) => sum + inv.amount, 0);
+  // ✅ FIXED: Use new nested structure (company.ai_insights.investments)
+  const totalInvestment = company.ai_insights.investments.reduce((sum, inv) => sum + inv.amount_numeric, 0);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -24,8 +25,8 @@ export const CompanyDetail = ({ company, open, onOpenChange }: CompanyDetailProp
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
           <div className="flex items-start justify-between">
             <div>
-              <DialogTitle className="text-2xl font-bold">{company.company_name}</DialogTitle>
-              <p className="text-sm text-muted-foreground mt-1">{company.ticker} • Filed {company.filing_date}</p>
+              <DialogTitle className="text-2xl font-bold">{company.company.name}</DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">{company.company.ticker} • Filed {company.filing_date}</p>
             </div>
             <Badge className="bg-gradient-warm text-white">
               {company.ai_maturity.label}
@@ -61,10 +62,10 @@ export const CompanyDetail = ({ company, open, onOpenChange }: CompanyDetailProp
                             ${(totalInvestment / 1_000_000).toFixed(0)}M
                           </span>
                         </div>
-                        {company.investments.map((inv, i) => (
+                        {company.ai_insights.investments.map((inv, i) => (
                           <div key={i} className="flex justify-between items-center text-sm">
-                            <span className="text-muted-foreground">{inv.category}</span>
-                            <span className="font-semibold">${(inv.amount / 1_000_000).toFixed(0)}M</span>
+                            <span className="text-muted-foreground">{inv.purpose}</span>
+                            <span className="font-semibold">{inv.amount}</span>
                           </div>
                         ))}
                       </div>
@@ -94,9 +95,10 @@ export const CompanyDetail = ({ company, open, onOpenChange }: CompanyDetailProp
                     AI Products & Features
                   </h3>
                   <div className="grid gap-2">
-                    {company.products.map((product, i) => (
+                    {company.ai_insights.products.map((product, i) => (
                       <div key={i} className="p-3 bg-muted/30 rounded-lg border border-border hover:border-primary/50 transition-colors">
-                        <span className="font-medium">{product}</span>
+                        <div className="font-medium">{product.product_name}</div>
+                        <p className="text-xs text-muted-foreground mt-1">{product.description}</p>
                       </div>
                     ))}
                   </div>
@@ -110,9 +112,10 @@ export const CompanyDetail = ({ company, open, onOpenChange }: CompanyDetailProp
                     Risk Factors
                   </h3>
                   <div className="space-y-3">
-                    {company.risk_factors.map((risk, i) => (
+                    {company.ai_insights.risks.map((riskItem, i) => (
                       <div key={i} className="p-4 bg-warning/5 border border-warning/20 rounded-lg">
-                        <p className="text-sm">{risk}</p>
+                        <div className="font-semibold text-sm mb-1 capitalize">{riskItem.category}</div>
+                        <p className="text-sm">{riskItem.risk}</p>
                       </div>
                     ))}
                   </div>
@@ -126,17 +129,17 @@ export const CompanyDetail = ({ company, open, onOpenChange }: CompanyDetailProp
                       <Radio className="h-5 w-5 text-primary" />
                       Current Hiring Signals
                     </h3>
-                    <Badge variant={company.enrichment.signals.hiring_velocity === 'HIGH' ? 'default' : 'secondary'}>
-                      {company.enrichment.signals.hiring_velocity} urgency
+                    <Badge variant={company.enrichment.hiring.hiring_urgency === 'HIGH' ? 'default' : 'secondary'}>
+                      {company.enrichment.hiring.hiring_urgency} urgency
                     </Badge>
                   </div>
-                  
+
                   <div className="text-2xl font-bold mb-4">
-                    {company.enrichment.jobs.length} AI Roles Open
+                    {company.enrichment.hiring.ai_jobs} AI Roles Open
                   </div>
 
                   <div className="space-y-3">
-                    {company.enrichment.jobs.slice(0, 5).map((job, i) => (
+                    {company.enrichment.hiring.ai_job_details.slice(0, 5).map((job, i) => (
                       <div key={i} className="p-4 bg-card border border-border rounded-lg hover:shadow-md transition-shadow">
                         <div className="flex items-start justify-between mb-2">
                           <div>
@@ -158,13 +161,13 @@ export const CompanyDetail = ({ company, open, onOpenChange }: CompanyDetailProp
                   </div>
                 </div>
 
-                {company.enrichment.news.length > 0 && (
+                {company.enrichment.recent_news.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Recent AI News</h3>
                     <div className="space-y-3">
-                      {company.enrichment.news.map((news, i) => (
+                      {company.enrichment.recent_news.map((news, i) => (
                         <div key={i} className="p-4 bg-info/5 border border-info/20 rounded-lg">
-                          <h4 className="font-semibold mb-1">{news.title}</h4>
+                          <h4 className="font-semibold mb-1">{news.headline}</h4>
                           <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             <span>{news.source}</span>
                             <span>•</span>

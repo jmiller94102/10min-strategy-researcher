@@ -31,7 +31,8 @@ import {
 // CONFIGURATION
 // ============================================================================
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+// ⚠️ HARDCODED FOR BACKEND INTEGRATION (Vite .env not loading)
+const API_BASE_URL = 'http://localhost:8010';
 
 // API Mode: CLIENT_MOCK | BACKEND_MOCK | REAL
 type APIMode = 'CLIENT_MOCK' | 'BACKEND_MOCK' | 'REAL';
@@ -47,7 +48,8 @@ const getAPIMode = (): APIMode => {
   return mode as APIMode;
 };
 
-const API_MODE = getAPIMode();
+// ⚠️ HARDCODED FOR BACKEND INTEGRATION (Vite .env not loading)
+const API_MODE: APIMode = 'BACKEND_MOCK';
 
 // Mock delays (milliseconds) for realistic simulation
 const MOCK_DELAYS = {
@@ -551,7 +553,7 @@ class APIClient {
 // ============================================================================
 
 export const api = new APIClient(API_BASE_URL, API_MODE);
-export { APIError };
+// Note: APIError is already exported at line 63 (inline export)
 
 // Log current configuration
 console.log(
