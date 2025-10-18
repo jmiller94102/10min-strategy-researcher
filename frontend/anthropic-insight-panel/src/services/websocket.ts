@@ -8,7 +8,7 @@ import { getMockCompanyProfile } from '@/mocks/mockData';
 // CONFIGURATION
 // ============================================================================
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8010/ws';
 const ENABLE_MOCK_DATA = import.meta.env.VITE_ENABLE_MOCK_DATA === 'true';
 
 type MessageHandler = (message: WebSocketMessage) => void;
@@ -274,11 +274,12 @@ export class WebSocketClient {
 // ============================================================================
 
 export function createWebSocketClient(): WebSocketClient {
-  return new WebSocketClient();
+  // ⚠️ HARDCODED: Use real WebSocket for backend integration
+  return new WebSocketClient(false);  // false = REAL mode (not mock)
 }
 
-// Log current mode
+// Log current mode (hardcoded to REAL for backend integration)
 console.log(
   `🔌 WebSocket Client module loaded:`,
-  ENABLE_MOCK_DATA ? '🎭 Mock Mode' : '🌐 Real WebSocket Mode'
+  '🌐 Real WebSocket Mode (hardcoded for backend integration)'
 );
