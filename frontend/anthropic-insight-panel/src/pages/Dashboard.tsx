@@ -4,11 +4,9 @@ import { CompanyDetail } from "@/components/CompanyDetail";
 import { DebugPanel } from "@/components/DebugPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Download, GitCompare } from "lucide-react";
+import { Play, Download, GitCompare, Loader2 } from "lucide-react";
 import { CompanyProfile, WorkflowStep } from "@/types/api";
-import { useCompanies } from "@/hooks/useCompanies";
 import { usePipeline } from "@/hooks/usePipeline";
-import { Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 // import { mockMicrosoftProfile, mockNvidiaProfile, mockAppleProfile } from "@/mocks/mockData";  // ← OLD: Removed for backend integration
 
@@ -154,17 +152,20 @@ const oldMockCompanies: CompanyProfile[] = [
 ];
 
 const Dashboard = () => {
-  // ✅ NEW: Fetch companies from backend API
-  const { data: companies, isLoading, error } = useCompanies(['MSFT', 'NVDA', 'AAPL']);
-
   // ✅ Pipeline management for "Start Pipeline" button
+  // The pipeline hook manages everything: loading, progress, results, errors
   const {
     startPipeline,
     loading: pipelineLoading,
     progress: pipelineProgress,
     error: pipelineError,
-    companyStatuses
+    companyStatuses,
+    results: companies  // ← Use pipeline results as companies to display
   } = usePipeline();
+
+  // No separate loading/error states needed - use pipeline states
+  const isLoading = pipelineLoading && companies.length === 0;
+  const error = pipelineError ? new Error(pipelineError) : null;
 
   const [selectedCompany, setSelectedCompany] = useState<CompanyProfile | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);

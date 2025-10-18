@@ -120,6 +120,10 @@ class APIClient {
       // Prepend /mock to the path
       return `/mock${path}`;
     }
+    if (this.mode === 'REAL') {
+      // Prepend /api/v1 to the path for production endpoints
+      return `/api/v1${path}`;
+    }
     return path;
   }
 
