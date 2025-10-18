@@ -475,12 +475,49 @@ async def scrape_with_retry(func):
 
 ## Validation Gates Between Phases
 
-**After Phase 1:** Verify one 10-K retrieved successfully
-**After Phase 2:** Verify all 10 companies retrieved
-**After Phase 3:** Verify sections extracted correctly
-**After Phase 5:** Manual spot-check 3 companies' insights
-**After Phase 7:** Verify enrichment data quality
-**After Phase 8:** Test CSV import in Salesforce
+**CRITICAL:** Use sub-agent validation after EACH phase to catch bugs early.
+
+**After Phase 1:**
+- Run validation sub-agent to test retrieval code
+- Verify one 10-K retrieved successfully
+- Update BACKEND_TASKS.md with completion status
+
+**After Phase 2:**
+- Run validation sub-agent for parallel execution
+- Verify all 10 companies retrieved
+- Update BACKEND_TASKS.md with results
+
+**After Phase 3:**
+- Run validation sub-agent for HTML parsing
+- Verify sections extracted correctly
+- Update BACKEND_TASKS.md
+
+**After Phase 5:**
+- Run validation sub-agent for LLM extraction
+- Manual spot-check 3 companies' insights
+- Update BACKEND_TASKS.md
+
+**After Phase 7:**
+- Run validation sub-agent for enrichment
+- Verify enrichment data quality
+- Update BACKEND_TASKS.md
+
+**After Phase 8:**
+- Run validation sub-agent for exports
+- Test CSV import in Salesforce
+- Update BACKEND_TASKS.md with final status
+
+**Task Tracking Requirements:**
+- Update BACKEND_TASKS.md after EVERY phase completion
+- Track current phase, completed items, blockers
+- Include enough detail for context recovery
+- NEVER skip task updates (this is critical for /recover-context)
+
+**Issue Tracking Requirements:**
+- Create BACKEND_ISSUES.md if it doesn't exist
+- Log ANY issue found that we defer
+- Include: description, context, recommended solution, priority
+- Review before final delivery
 
 ---
 
