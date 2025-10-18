@@ -167,9 +167,9 @@ class ParallelEnrichmentController:
 
             # Scrape jobs using Browser-Use
             if workspace:
-                logger.info(f"Scraping {ticker} in Daytona workspace {workspace['workspace_id']}")
-                # For hackathon demo, run locally even with workspace created
-                # In production, would execute scraping code inside Daytona workspace
+                logger.info(f"Scraping {ticker} in Daytona sandbox {workspace.get('sandbox_id', 'N/A')}")
+                # For hackathon demo, run locally even with sandbox created
+                # In production, would execute scraping code inside Daytona sandbox
                 result = await self.job_scraper.scrape_jobs_with_retry(company)
             else:
                 logger.info(f"Scraping {ticker} locally")

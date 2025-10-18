@@ -34,7 +34,7 @@ class PipelineOrchestrator:
         tickers: List[str],
         force_refresh: bool = False,
         skip_enrichment: bool = False,
-        use_daytona: bool = False,
+        use_daytona: bool = True,  # ✅ REQUIRED: Use Daytona by default for hackathon demo
         progress_callback: Optional[Callable] = None
     ) -> dict:
         """
@@ -44,7 +44,7 @@ class PipelineOrchestrator:
             tickers: Company ticker symbols
             force_refresh: Bypass 10-K cache
             skip_enrichment: Skip Browser-Use enrichment (faster)
-            use_daytona: Use Daytona environments for enrichment
+            use_daytona: Use Daytona environments for enrichment (REQUIRED for demo)
             progress_callback: Progress update callback
 
         Returns:

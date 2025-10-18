@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     # Anthropic (for Browser-Use agent)
     anthropic_api_key: Optional[str] = None
 
+    # Browser-Use Cloud API
+    browser_use_api_key: Optional[str] = None
+
     # Daytona
     daytona_api_key: str
     daytona_workspace_prefix: str = "10k-pipeline"

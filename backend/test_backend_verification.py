@@ -153,17 +153,17 @@ async def test_backend_verification():
         logger.info(f"✅ Phase 3 Complete: Extracted insights from {len(insights_results)} companies")
 
         # ==================================================================
-        # PHASE 4: Browser-Use + Daytona Enrichment
+        # PHASE 4: Browser-Use + Daytona + Azure OpenAI Enrichment
         # ==================================================================
-        logger.info("\n[PHASE 4] Testing Browser-Use + Daytona Enrichment...")
-        logger.info("NOTE: Running in LOCAL mode (use_daytona=False) for faster demo")
-        logger.info("      Set use_daytona=True to test Daytona environments\n")
+        logger.info("\n[PHASE 4] Testing Browser-Use + Daytona + Azure OpenAI Enrichment...")
+        logger.info("NOTE: ✅ Creating Daytona sandboxes for parallel execution")
+        logger.info("      Using Azure OpenAI GPT-4o for Browser-Use agent\n")
 
         companies = orchestrator.company_manager.get_companies(TEST_TICKERS)
 
         enrichment_result = await orchestrator.enrichment_controller.enrich_parallel(
             companies=companies,
-            use_daytona=False,  # Local mode for speed
+            use_daytona=True,  # ✅ REQUIRED: Create Daytona sandboxes
             progress_callback=None
         )
 

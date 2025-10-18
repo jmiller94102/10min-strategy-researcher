@@ -45,6 +45,7 @@ app.add_middleware(
         settings.frontend_url,
         "http://localhost:5173",  # Vite default
         "http://localhost:3000",  # Alternative React port
+        "http://localhost:8083",  # Lovable.dev frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],
