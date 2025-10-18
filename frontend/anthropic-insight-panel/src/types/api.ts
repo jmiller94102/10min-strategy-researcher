@@ -25,6 +25,11 @@ export interface CompanyProfile {
   ai_maturity: AIMaturityScore;
   sdr_playbook: SDRPlaybook;
   metadata: ProfileMetadata;
+
+  // Workflow status (for demo UI)
+  workflow_status?: 'Pending' | 'Analyzing' | 'Enriching' | 'Complete';
+  workflow_progress?: number;           // 0-100
+  workflow_message?: string;            // e.g., "Parsing SEC filings", "Analysis complete"
 }
 
 // ============================================================================

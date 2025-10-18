@@ -1,4 +1,4 @@
-import { Building2, TrendingUp, Briefcase, Newspaper } from "lucide-react";
+import { Building2, TrendingUp, Briefcase, Newspaper, Activity } from "lucide-react";
 import { CompanyProfile } from "@/types/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,9 +25,9 @@ export const CompanyCard = ({ company, onClick }: CompanyCardProps) => {
     }
   };
 
-  const totalInvestment = company.investments.reduce((sum, inv) => sum + inv.amount, 0);
-  const jobCount = company.enrichment?.jobs?.length || 0;
-  const newsCount = company.enrichment?.news?.length || 0;
+  const totalInvestment = company.ai_insights.investments.reduce((sum, inv) => sum + inv.amount_numeric, 0);
+  const jobCount = company.enrichment?.hiring?.ai_jobs || 0;
+  const newsCount = company.enrichment?.recent_news?.length || 0;
 
   return (
     <Card
@@ -41,29 +41,37 @@ export const CompanyCard = ({ company, onClick }: CompanyCardProps) => {
               <Building2 className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">{company.company_name}</h3>
-              <p className="text-sm text-muted-foreground">{company.ticker}</p>
+              <h3 className="font-semibold text-lg">{company.company.name}</h3>
+              <p className="text-sm text-muted-foreground">{company.company.ticker}</p>
             </div>
           </div>
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">AI Maturity</span>
-            <Badge className={getMaturityColor(company.ai_maturity.label)}>
-              {company.ai_maturity.label}
+            <span className="text-sm font-medium flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Workflow Status
+            </span>
+            <Badge className={
+              company.workflow_status === 'Complete' ? 'bg-success text-white' :
+              company.workflow_status === 'Enriching' ? 'bg-orange-500 text-white' :
+              company.workflow_status === 'Analyzing' ? 'bg-orange-500 text-white' :
+              'bg-muted text-muted-foreground'
+            }>
+              {company.workflow_status || 'Pending'}
             </Badge>
           </div>
-          
+
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Score</span>
-              <span className="font-semibold">{company.ai_maturity.total_score}/100</span>
+              <span className="text-muted-foreground">{company.workflow_message || 'Waiting to start'}</span>
+              <span className="font-semibold">{company.workflow_progress || 0}%</span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-warm transition-all duration-500"
-                style={{ width: `${company.ai_maturity.total_score}%` }}
+                style={{ width: `${company.workflow_progress || 0}%` }}
               />
             </div>
           </div>

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     azure_openai_embedding_deployment: str = "text-embedding-3-small"
 
     # Anthropic (for Browser-Use agent)
-    anthropic_api_key: str
+    anthropic_api_key: Optional[str] = None
 
     # Daytona
     daytona_api_key: str

@@ -11,9 +11,16 @@ class DaytonaEnvironmentManager:
     """Manages Daytona dev environments for parallel enrichment"""
 
     def __init__(self):
-        self.client = Daytona(api_key=settings.daytona_api_key)
-        self.active_workspaces: Dict[str, any] = {}
-        logger.info("DaytonaEnvironmentManager initialized")
+        # Daytona SDK uses environment variable DAYTONA_API_KEY
+        # or pass configuration directly
+        try:
+            self.client = Daytona()
+            self.active_workspaces: Dict[str, any] = {}
+            logger.info("DaytonaEnvironmentManager initialized")
+        except Exception as e:
+            logger.warning(f"Daytona client initialization failed: {e}")
+            self.client = None
+            self.active_workspaces: Dict[str, any] = {}
 
     async def create_workspace(self, company_ticker: str) -> dict:
         """
@@ -26,6 +33,15 @@ class DaytonaEnvironmentManager:
             Workspace info dict
         """
         workspace_name = f"{settings.daytona_workspace_prefix}-{company_ticker.lower()}"
+
+        if not self.client:
+            return {
+                "ticker": company_ticker,
+                "workspace_id": None,
+                "name": workspace_name,
+                "status": "skipped",
+                "note": "Daytona client not initialized"
+            }
 
         try:
             logger.info(f"Creating Daytona workspace: {workspace_name}")

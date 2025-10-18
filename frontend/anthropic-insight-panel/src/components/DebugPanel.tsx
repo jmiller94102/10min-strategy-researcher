@@ -4,6 +4,13 @@ import { WorkflowStep } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DebugPanelProps {
   steps: WorkflowStep[];
@@ -12,6 +19,13 @@ interface DebugPanelProps {
 
 export const DebugPanel = ({ steps, currentCompany }: DebugPanelProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [selectedCompany, setSelectedCompany] = useState(currentCompany || 'MSFT');
+
+  const companies = [
+    { value: 'MSFT', label: 'MSFT - Microsoft' },
+    { value: 'NVDA', label: 'NVDA - NVIDIA' },
+    { value: 'AAPL', label: 'AAPL - Apple' },
+  ];
 
   const getToolIcon = (tool: string) => {
     switch (tool) {
@@ -65,12 +79,24 @@ export const DebugPanel = ({ steps, currentCompany }: DebugPanelProps) => {
         <div className="flex flex-col h-full p-4">
           <div className="mb-4">
             <h2 className="text-lg font-semibold mb-1">Workflow Debug</h2>
-            <p className="text-xs text-debug-foreground/70">Live hackathon demo panel</p>
-            {currentCompany && (
-              <Badge variant="outline" className="mt-2 bg-debug-accent/10 text-debug-accent border-debug-accent">
-                {currentCompany}
-              </Badge>
-            )}
+            <p className="text-xs text-debug-foreground/70 mb-3">Live hackathon demo panel</p>
+
+            <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+              <SelectTrigger className="w-full bg-debug-bg border-debug-border text-debug-foreground">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-debug-bg border-debug-border text-debug-foreground">
+                {companies.map((company) => (
+                  <SelectItem
+                    key={company.value}
+                    value={company.value}
+                    className="text-debug-foreground hover:bg-debug-accent/20"
+                  >
+                    {company.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <ScrollArea className="flex-1">

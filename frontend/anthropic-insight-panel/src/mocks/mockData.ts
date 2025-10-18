@@ -290,6 +290,11 @@ export const mockMicrosoftProfile: CompanyProfile = {
     enrichment_completeness: 0.95,
     status: 'complete',
   },
+
+  // Workflow status (for demo UI)
+  workflow_status: 'Complete',
+  workflow_progress: 100,
+  workflow_message: 'Analysis complete',
 };
 
 export const mockNvidiaProfile: CompanyProfile = {
@@ -441,6 +446,11 @@ export const mockNvidiaProfile: CompanyProfile = {
     enrichment_completeness: 0.92,
     status: 'complete',
   },
+
+  // Workflow status (for demo UI)
+  workflow_status: 'Enriching',
+  workflow_progress: 66,
+  workflow_message: 'Scraping job postings',
 };
 
 export const mockAppleProfile: CompanyProfile = {
@@ -560,6 +570,11 @@ export const mockAppleProfile: CompanyProfile = {
     enrichment_completeness: 0.88,
     status: 'complete',
   },
+
+  // Workflow status (for demo UI)
+  workflow_status: 'Analyzing',
+  workflow_progress: 33,
+  workflow_message: 'Parsing SEC filings',
 };
 
 // ============================================================================

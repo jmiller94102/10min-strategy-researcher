@@ -13,11 +13,15 @@ class AIJobScraper:
 
     def __init__(self):
         # Use Anthropic Claude for browser agent
-        self.llm = ChatAnthropic(
-            model_name="claude-3-5-sonnet-20241022",
-            api_key=settings.anthropic_api_key
-        )
-        logger.info("AIJobScraper initialized with Browser-Use + Claude")
+        if settings.anthropic_api_key:
+            self.llm = ChatAnthropic(
+                model_name="claude-3-5-sonnet-20241022",
+                api_key=settings.anthropic_api_key
+            )
+            logger.info("AIJobScraper initialized with Browser-Use + Claude")
+        else:
+            self.llm = None
+            logger.warning("AIJobScraper: ANTHROPIC_API_KEY not set - Browser-Use disabled")
 
     async def scrape_ai_jobs(self, company: dict) -> dict:
         """
@@ -34,6 +38,18 @@ class AIJobScraper:
         ticker = company["ticker"]
 
         logger.info(f"Starting Browser-Use job scrape for {company_name}")
+
+        # If no API key, return mock data
+        if not self.llm:
+            logger.warning(f"Skipping Browser-Use for {ticker} - no API key")
+            return {
+                "company": company,
+                "ai_jobs": [],
+                "tech_stack": [],
+                "source": f"careers.{domain}",
+                "status": "skipped",
+                "note": "ANTHROPIC_API_KEY not configured"
+            }
 
         try:
             # Create Browser-Use agent with task

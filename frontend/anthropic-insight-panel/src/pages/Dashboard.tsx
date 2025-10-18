@@ -6,9 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Download, GitCompare } from "lucide-react";
 import { CompanyProfile, WorkflowStep } from "@/types/api";
+import { mockMicrosoftProfile, mockNvidiaProfile, mockAppleProfile } from "@/mocks/mockData";
 
-// Mock data for initial demo
+// Mock companies with workflow status
 const mockCompanies: CompanyProfile[] = [
+  mockMicrosoftProfile,
+  mockNvidiaProfile,
+  mockAppleProfile,
+];
+
+// OLD inline mock data (kept for reference but not used)
+const oldMockCompanies: CompanyProfile[] = [
   {
     ticker: "MSFT",
     company_name: "Microsoft",
@@ -235,7 +243,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {companies.map((company) => (
             <CompanyCard
-              key={company.ticker}
+              key={company.company.ticker}
               company={company}
               onClick={() => {
                 setSelectedCompany(company);
@@ -264,9 +272,9 @@ const Dashboard = () => {
       </main>
 
       {/* Debug Panel */}
-      <DebugPanel 
+      <DebugPanel
         steps={workflowSteps}
-        currentCompany={selectedCompany?.ticker}
+        currentCompany={selectedCompany?.company.ticker}
       />
 
       {/* Company Detail Modal */}
